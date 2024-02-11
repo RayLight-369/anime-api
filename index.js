@@ -32,11 +32,13 @@ app.post( "/search", async ( req, res ) => {
   const query = req.body.query; // assuming the client sends a 'query' parameter in the request body
   try {
     const searchResults = await searchAnime( query );
+
     if ( searchResults ) {
       res.json( searchResults ); // sending the search results back to the client
     } else {
       res.status( 404 ).json( { error: "No results found" } );
     }
+
   } catch ( error ) {
     console.error( "Error searching anime:", error );
     res.status( 500 ).json( { error: "Internal server error" } );
