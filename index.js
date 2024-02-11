@@ -3,7 +3,7 @@ const app = express();
 const cors = require( "cors" );
 const bodyParser = require( "body-parser" );
 const { ANIME } = require( "@consumet/extensions" );
-const zoro = new ANIME.Zoro();
+const gogo = new ANIME.Gogoanime();
 var https = require( "http" );
 var server = https.createServer( app );
 const port = 5260;
@@ -11,9 +11,15 @@ const port = 5260;
 
 
 
+gogo.baseUrl = "https://anitaku.to";
+
 const searchAnime = async ( query ) => {
-  let results = await zoro.search( query );
+  let results = await gogo.search( query );
   return ( results.results.length ? results : null );
+};
+
+const topAiring = async () => {
+  return ( await gogo.fetchTopAiring() );
 };
 
 
@@ -28,6 +34,15 @@ app.use( cors() );
 
 app.get( "/", ( req, res ) => {
   res.send( "server running!" );
+} );
+
+app.post( "/top-airing", async ( req, res ) => {
+  try {
+    res.json( await topAiring() );
+  } catch ( e ) {
+    console.log( e );
+    res.status( 500 ).json( { error: "Internal server error" } );
+  }
 } );
 
 app.post( "/search", async ( req, res ) => {
