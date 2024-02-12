@@ -22,6 +22,10 @@ const topAiring = async () => {
   return ( await gogo.fetchTopAiring() );
 };
 
+const recentEpisodes = async ( page = 1, type = 1 ) => {
+  return ( await gogo.fetchRecentEpisodes( page, type ) );
+};
+
 
 
 
@@ -39,6 +43,19 @@ app.get( "/", ( req, res ) => {
 app.post( "/top-airing", async ( req, res ) => {
   try {
     res.json( await topAiring() );
+  } catch ( e ) {
+    console.log( e );
+    res.status( 500 ).json( { error: "Internal server error" } );
+  }
+} );
+
+app.post( "/recent-episodes", async ( req, res ) => {
+
+  const page = req.body?.page || 1;
+  const type = req.body?.type || 1;
+
+  try {
+    res.json( await recentEpisodes( page, type ) );
   } catch ( e ) {
     console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
