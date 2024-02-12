@@ -26,6 +26,10 @@ const recentEpisodes = async ( page = 1, type = 1 ) => {
   return ( await gogo.fetchRecentEpisodes( page, type ) );
 };
 
+const animeInfo = async ( id ) => {
+  return ( await gogo.fetchAnimeInfo( id ) );
+};
+
 
 
 
@@ -40,6 +44,7 @@ app.get( "/", ( req, res ) => {
   res.send( "server running!" );
 } );
 
+
 app.post( "/top-airing", async ( req, res ) => {
   try {
     res.json( await topAiring() );
@@ -48,6 +53,7 @@ app.post( "/top-airing", async ( req, res ) => {
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
+
 
 app.post( "/recent-episodes", async ( req, res ) => {
 
@@ -61,6 +67,24 @@ app.post( "/recent-episodes", async ( req, res ) => {
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
+
+
+app.post( "/anime-info", async ( req, res ) => {
+
+  const id = req.body.id;
+
+  try {
+
+    const anime = await animeInfo( id );
+    if ( anime ) res.json( anime );
+    else res.status( 404 ).json( { error: "Invalid ID" } );
+
+  } catch ( e ) {
+    console.log( e );
+    res.status( 500 ).json( { error: "Internal server error" } );
+  }
+} );
+
 
 app.post( "/search", async ( req, res ) => {
   const query = req.body.query; // assuming the client sends a 'query' parameter in the request body
