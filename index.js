@@ -13,8 +13,8 @@ const port = 5260;
 
 gogo.baseUrl = "https://anitaku.to";
 
-const searchAnime = async ( query ) => {
-  let results = await gogo.search( query );
+const searchAnime = async ( query, page = 1 ) => {
+  let results = await gogo.search( query, page );
   return ( results.results.length ? results : null );
 };
 
@@ -89,10 +89,10 @@ app.post( "/anime-info", async ( req, res ) => {
 
 app.post( "/search", async ( req, res ) => {
   const query = req.body.query; // assuming the client sends a 'query' parameter in the request body
-  console.log( query );
-  console.log( req.body );
+  const page = req.body.page || 1;
+
   try {
-    const searchResults = await searchAnime( query );
+    const searchResults = await searchAnime( query, page );
     console.log( query );
     if ( searchResults ) {
       console.log( searchResults );
