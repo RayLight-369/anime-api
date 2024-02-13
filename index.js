@@ -18,8 +18,8 @@ const searchAnime = async ( query ) => {
   return ( results.results.length ? results : null );
 };
 
-const topAiring = async () => {
-  return ( await gogo.fetchTopAiring() );
+const topAiring = async ( page = 1 ) => {
+  return ( await gogo.fetchTopAiring( page ) );
 };
 
 const recentEpisodes = async ( page = 1, type = 1 ) => {
@@ -46,8 +46,9 @@ app.get( "/", ( req, res ) => {
 
 
 app.post( "/top-airing", async ( req, res ) => {
+  const page = req.body?.page || 1;
   try {
-    res.json( await topAiring() );
+    res.json( await topAiring( page ) );
   } catch ( e ) {
     console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
