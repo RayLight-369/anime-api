@@ -30,6 +30,10 @@ const animeInfo = async ( id ) => {
   return ( await gogo.fetchAnimeInfo( id ) );
 };
 
+const fetchServers = async ( id ) => {
+  return ( await gogo.fetchEpisodeServers( id ) );
+};
+
 
 
 
@@ -82,6 +86,26 @@ app.post( "/anime-info", async ( req, res ) => {
 
   } catch ( e ) {
     console.log( e );
+    res.status( 500 ).json( { error: "Internal server error" } );
+  }
+} );
+
+
+app.post( "/episode-servers", async ( req, res ) => {
+  const id = req.body.epId;
+
+  try {
+    const servers = await fetchServers( id );
+
+    if ( servers ) {
+      console.log( servers );
+      res.json( servers ); // sending the search results back to the client
+    } else {
+      res.status( 404 ).json( { error: "No results found" } );
+    }
+
+  } catch ( error ) {
+    console.error( "Error searching anime:", error );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
