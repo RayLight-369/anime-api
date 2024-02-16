@@ -191,6 +191,8 @@ app.post( "/num-of-viewers", async ( req, res ) => {
       res.status( 403 ).json( { message: "forbidden" } );
     }
 
+    res.end();
+
   } catch ( e ) {
     //console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
