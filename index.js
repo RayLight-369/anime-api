@@ -31,7 +31,7 @@ async function updateCachedValue ( update ) {
     }
 
     const { data, error } = await Data.select();
-    //console.log( data );
+    // console.log( data );
 
     if ( error ) {
       throw error;
@@ -181,12 +181,15 @@ app.get( "/num-of-viewers", async ( _, res ) => {
 
 
 app.post( "/num-of-viewers", async ( req, res ) => {
+
+  const visited = req.body.visited;
+
   try {
 
-    if ( !req.cookies?.deviceVisited ) {
+    if ( !visited ) {
       cachedValue++;
       res.cookie( "deviceVisited", true );
-      //console.log( req.cookies, cachedValue );
+      // console.log( visited, cachedValue );
     }
 
     res.status( 200 ).send( cachedValue.toString() );
