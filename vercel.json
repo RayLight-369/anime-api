@@ -12,5 +12,9 @@
       "dest": "/"
     }
   ],
-  "files": [ "siteData.txt" ]
+  "functions": {
+    "/num-of-viewers": {
+      "includeFiles": "./siteData.txt"
+    }
+  }
 }
