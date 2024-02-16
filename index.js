@@ -169,7 +169,7 @@ app.post( "/search", async ( req, res ) => {
 app.get( "/num-of-viewers", async ( _, res ) => {
   try {
 
-    res.send( cachedValue );
+    res.sendStatus( 200 ).send( cachedValue );
 
   } catch ( e ) {
     console.log( e );
