@@ -178,6 +178,21 @@ app.get( "/num-of-viewers", async ( _, res ) => {
 } );
 
 
+app.post( "/num-of-viewers", async ( req, res ) => {
+  try {
+
+    if ( !req.cookies?.deviceVisited ) {
+      cachedValue++;
+      res.cookie( "deviceVisited", true );
+    }
+
+  } catch ( e ) {
+    console.log( e );
+    res.status( 500 ).json( { error: "Internal server error" } );
+  }
+} );
+
+
 
 
 server.listen( port, () => console.log( `server running on ${ port }` ) );
