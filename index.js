@@ -186,6 +186,8 @@ app.post( "/num-of-viewers", async ( req, res ) => {
       res.cookie( "deviceVisited", true );
     }
 
+    res.end();
+
   } catch ( e ) {
     console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
