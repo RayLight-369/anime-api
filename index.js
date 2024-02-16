@@ -133,11 +133,11 @@ app.post( "/search", async ( req, res ) => {
 } );
 
 
-app.get( "/site/num-of-viewers", async ( req, res ) => {
+app.get( "/site/num-of-viewers", async ( _, res ) => {
   try {
 
     const siteData = await fs.readFile( "./siteData.txt" ).then( num => num.toString() );
-    if ( siteData ) res.send( siteData );
+    if ( siteData ) res.json( { siteData } );
     else res.status( 404 ).send( "error" );
 
   } catch ( e ) {
