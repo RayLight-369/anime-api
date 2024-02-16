@@ -25,12 +25,13 @@ async function updateCachedValue ( update ) {
       .from( 'sp' );
 
     if ( update ) {
-      Data
+      await Data
         .update( { viewers: cachedValue } )
-        .eq( 'id', 1 );
+        .match( { id: 1 } );
     }
 
-    const { data, error } = await Data.select().eq( 'id', 1 );
+    const { data, error } = await Data.select();
+    console.log( data );
 
     if ( error ) {
       throw error;
@@ -40,7 +41,7 @@ async function updateCachedValue ( update ) {
       throw new Error( 'No rows found' );
     }
 
-    cachedValue = parseInt( data[ 0 ].viewers );
+    if ( !update ) cachedValue = parseInt( data[ 0 ].viewers );
   } catch ( error ) {
     console.error( 'Error fetching value from Supabase:', error );
   }
@@ -188,9 +189,10 @@ app.post( "/num-of-viewers", async ( req, res ) => {
     if ( !req.cookies?.deviceVisited ) {
       cachedValue++;
       res.cookie( "deviceVisited", true );
+      console.log( req.cookies, cachedValue );
+    } else {
+      res.status( 403 ).json( { message: "forbidden" } );
     }
-
-    res.end();
 
   } catch ( e ) {
     console.log( e );
