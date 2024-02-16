@@ -133,7 +133,7 @@ app.post( "/search", async ( req, res ) => {
 } );
 
 
-app.get( "/site/num-of-viewers", async ( _, res ) => {
+app.get( "/num-of-viewers", async ( _, res ) => {
   try {
 
     const siteData = await fs.readFile( "./siteData.txt" ).then( num => num.toString() );
