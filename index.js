@@ -31,7 +31,7 @@ async function updateCachedValue ( update ) {
     }
 
     const { data, error } = await Data.select();
-    console.log( data );
+    //console.log( data );
 
     if ( error ) {
       throw error;
@@ -93,7 +93,7 @@ app.post( "/top-airing", async ( req, res ) => {
   try {
     res.json( await topAiring( page ) );
   } catch ( e ) {
-    console.log( e );
+    ////console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
@@ -107,7 +107,7 @@ app.post( "/recent-episodes", async ( req, res ) => {
   try {
     res.json( await recentEpisodes( page, type ) );
   } catch ( e ) {
-    console.log( e );
+    ////console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
@@ -124,7 +124,7 @@ app.post( "/anime-info", async ( req, res ) => {
     else res.status( 404 ).json( { error: "Invalid ID" } );
 
   } catch ( e ) {
-    console.log( e );
+    ////console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
@@ -137,7 +137,7 @@ app.post( "/episode-servers", async ( req, res ) => {
     const servers = await fetchServers( id );
 
     if ( servers ) {
-      console.log( servers );
+      ////console.log( servers );
       res.json( servers ); // sending the search results back to the client
     } else {
       res.status( 404 ).json( { error: "No results found" } );
@@ -156,9 +156,9 @@ app.post( "/search", async ( req, res ) => {
 
   try {
     const searchResults = await searchAnime( query, page );
-    console.log( query );
+    // console.log( query );
     if ( searchResults ) {
-      console.log( searchResults );
+      //console.log( searchResults );
       res.json( searchResults ); // sending the search results back to the client
     } else {
       res.status( 404 ).json( { error: "No results found" } );
@@ -177,7 +177,7 @@ app.get( "/num-of-viewers", async ( _, res ) => {
     res.status( 200 ).send( cachedValue.toString() );
 
   } catch ( e ) {
-    console.log( e );
+    //console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
@@ -189,13 +189,13 @@ app.post( "/num-of-viewers", async ( req, res ) => {
     if ( !req.cookies?.deviceVisited ) {
       cachedValue++;
       res.cookie( "deviceVisited", true );
-      console.log( req.cookies, cachedValue );
+      //console.log( req.cookies, cachedValue );
     } else {
       res.status( 403 ).json( { message: "forbidden" } );
     }
 
   } catch ( e ) {
-    console.log( e );
+    //console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
