@@ -187,8 +187,6 @@ app.post( "/num-of-viewers", async ( req, res ) => {
       cachedValue++;
       res.cookie( "deviceVisited", true );
       //console.log( req.cookies, cachedValue );
-    } else {
-      res.status( 403 ).json( { message: "forbidden" } );
     }
 
     res.status( 200 ).send( cachedValue.toString() );
