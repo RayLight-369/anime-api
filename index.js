@@ -24,7 +24,7 @@ async function updateCachedValue ( update ) {
     const Data = supabase
       .from( 'sp' );
 
-    if ( update ) {
+    if ( update && cachedValue > 10 ) {
       await Data
         .update( { viewers: cachedValue } )
         .match( { id: 1 } );
