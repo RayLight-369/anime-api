@@ -1,11 +1,12 @@
 const express = require( "express" );
+const fs = require( "fs/promises" );
 const app = express();
 const cors = require( "cors" );
 const bodyParser = require( "body-parser" );
 const { ANIME } = require( "@consumet/extensions" );
-const gogo = new ANIME.Gogoanime();
 var https = require( "http" );
 var server = https.createServer( app );
+const gogo = new ANIME.Gogoanime();
 const port = 5260;
 
 
@@ -127,6 +128,20 @@ app.post( "/search", async ( req, res ) => {
 
   } catch ( error ) {
     console.error( "Error searching anime:", error );
+    res.status( 500 ).json( { error: "Internal server error" } );
+  }
+} );
+
+
+app.get( "/site/num-of-viewers", async ( req, res ) => {
+  try {
+
+    const siteData = await fs.readFile( "./siteData.txt" ).then( num => num.toString() );
+    if ( siteData ) res.send( siteData );
+    else res.status( 404 ).send( "error" );
+
+  } catch ( e ) {
+    console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
