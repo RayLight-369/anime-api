@@ -13,20 +13,30 @@ const gogo = new ANIME.Gogoanime();
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const port = 5260;
-let cachedValue = 10;
+let cachedValue = 0;
 const supabase = createClient( supabaseUrl, supabaseKey );
 
 
 gogo.baseUrl = "https://anitaku.to";
 
 
-async function updateCachedValue () {
+async function updateCachedValue ( update = true ) {
   try {
-    const { data, error } = await supabase
-      .from( 'sp' )
-      .update( { viewers: cachedValue } )
-      .eq( 'id', 1 )
-      .select();
+    const Data = supabase
+      .from( 'sp' );
+
+    if ( update ) {
+      Data
+        .update( { viewers: cachedValue } )
+        .eq( 'id', 1 )
+        .select();
+    } else {
+      Data
+        .select()
+        .eq( 'id', 1 );
+    }
+
+    const { data, error } = await Data;
 
     if ( error ) {
       throw error;
@@ -36,13 +46,16 @@ async function updateCachedValue () {
       throw new Error( 'No rows found' );
     }
 
-    cachedValue = parseInt( data[ 0 ].viewers );
+    if ( !update ) {
+      cachedValue = parseInt( data[ 0 ].viewers );
+    }
+
   } catch ( error ) {
     console.error( 'Error fetching value from Supabase:', error );
   }
 }
 
-updateCachedValue();
+updateCachedValue( false );
 
 setInterval( updateCachedValue, 60000 );
 
