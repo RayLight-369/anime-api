@@ -49,9 +49,6 @@ async function updateCachedValue ( update ) {
 
 updateCachedValue( false );
 
-setInterval( () => updateCachedValue( true ), 60000 );
-
-
 const searchAnime = async ( query, page = 1 ) => {
   let results = await gogo.search( query, page );
   return ( results.results.length ? results : null );
@@ -200,6 +197,13 @@ app.post( "/num-of-viewers", async ( req, res ) => {
   }
 } );
 
+
+
+
+
+
+
+setInterval( () => updateCachedValue( true ), 60000 );
 
 
 
