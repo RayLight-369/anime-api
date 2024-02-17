@@ -168,7 +168,7 @@ app.post( "/search", async ( req, res ) => {
 } );
 
 
-app.get( "/num-of-viewers", async ( _, res ) => {
+app.get( "/num-of-viewers", ( _, res ) => {
   try {
 
     console.log( cachedValue );
@@ -181,7 +181,7 @@ app.get( "/num-of-viewers", async ( _, res ) => {
 } );
 
 
-app.post( "/num-of-viewers", async ( req, res ) => {
+app.post( "/num-of-viewers", ( req, res ) => {
 
   const visited = req.body.visited;
 
