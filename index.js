@@ -187,7 +187,7 @@ app.post( "/num-of-viewers", async ( req, res ) => {
 
   try {
 
-    if ( !visited ) {
+    if ( !visited || visited == "null" ) {
       ++cachedValue;
       res.cookie( "deviceVisited", true );
       // console.log( cachedValue );
