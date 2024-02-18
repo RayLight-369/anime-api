@@ -207,7 +207,7 @@ app.post( "/num-of-viewers", ( req, res ) => {
 } );
 
 
-app.get( "/torrents", async ( req, res ) => {
+app.post( "/torrents", async ( req, res ) => {
   const query = req.body.query;
   const category = req.body?.category || "Movies";
 
