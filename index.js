@@ -3,7 +3,9 @@ require( "dotenv" ).config();
 const express = require( "express" );
 const { createClient } = require( '@supabase/supabase-js' );
 const fs = require( "fs/promises" );
+const TorrentSearchApi = require( "torrent-search-api" );
 const app = express();
+TorrentSearchApi.enableProvider( "Yts" );
 const cors = require( "cors" );
 const bodyParser = require( "body-parser" );
 const { ANIME } = require( "@consumet/extensions" );
@@ -70,6 +72,9 @@ const fetchServers = async ( id ) => {
   return ( await gogo.fetchEpisodeServers( id ) );
 };
 
+const fetchTorrents = async ( query, category = "Movies" ) => {
+  return ( await TorrentSearchApi.search( query, category ) );
+};
 
 
 
@@ -201,6 +206,23 @@ app.post( "/num-of-viewers", ( req, res ) => {
   }
 } );
 
+
+app.get( "/torrents", async ( req, res ) => {
+  const query = req.body.query;
+  const category = req.body?.category || "Movies";
+
+  try {
+
+    const torrents = await fetchTorrents( query, category );
+
+    if ( torrents ) res.json( { torrents } );
+    else res.status( 404 ).json( { error: "Not Found" } );
+
+  } catch ( e ) {
+    console.log( e );
+    res.status( 500 ).json( { error: "Internal Server Error" } );
+  }
+} );
 
 
 
