@@ -72,7 +72,7 @@ const fetchServers = async ( id ) => {
   return ( await gogo.fetchEpisodeServers( id ) );
 };
 
-const fetchTorrents = async ( query, category = "Movies" ) => {
+const fetchTorrents = async ( query, category = "All" ) => {
   return ( await TorrentSearchApi.search( query, category ) );
 };
 
@@ -209,7 +209,7 @@ app.post( "/num-of-viewers", ( req, res ) => {
 
 app.post( "/torrents", async ( req, res ) => {
   const query = req.body.query;
-  const category = req.body?.category || "Movies";
+  const category = req.body?.category || "All";
 
   try {
 
