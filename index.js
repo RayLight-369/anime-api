@@ -12,6 +12,9 @@ const { ANIME } = require( "@consumet/extensions" );
 var https = require( "http" );
 var server = https.createServer( app );
 const gogo = new ANIME.Gogoanime();
+const torrentGalaxy = require( './torrent/torrentGalaxy' );
+const limeTorrent = require( './torrent/limeTorrent' );
+
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const port = 5260;
@@ -72,7 +75,7 @@ const fetchServers = async ( id ) => {
   return ( await gogo.fetchEpisodeServers( id ) );
 };
 
-const fetchTorrents = async ( query, category = "All" ) => {
+const fetchTorrents = async ( query, category = "all" ) => {
   return ( await TorrentSearchApi.search( query, category ) );
 };
 
@@ -208,20 +211,42 @@ app.post( "/num-of-viewers", ( req, res ) => {
 
 
 app.post( "/torrents", async ( req, res ) => {
-  const query = req.body.query;
-  const category = req.body?.category || "All";
 
-  try {
+  res.header( "Access-Control-Allow-Origin", "*" );
+  res.header( "Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept" );
+  // let website = ( req.params.website ).toLowerCase();
+  const query = req.body?.query || "";
+  const category = req.body?.category || "all";
+  const page = req?.body?.page || 1;
 
-    const torrents = await fetchTorrents( query, category );
+  limeTorrent( query, page, category )
+    .then( ( data ) => {
+      if ( data === null ) {
+        return res.json( {
+          error: 'Website is blocked change IP'
+        } );
 
-    if ( torrents ) res.json( { torrents } );
-    else res.status( 404 ).json( { error: "Not Found" } );
+      } else {
+        return res.send( data );
+      }
+    } );
 
-  } catch ( e ) {
-    console.log( e );
-    res.status( 500 ).json( { error: "Internal Server Error" } );
-  }
+
+
+
+  // const query = req.body.query;
+
+  // try {
+
+  //   const torrents = await fetchTorrents( query, category );
+
+  //   if ( torrents ) res.json( { torrents } );
+  //   else res.status( 404 ).json( { error: "Not Found" } );
+
+  // } catch ( e ) {
+  //   console.log( e );
+  //   res.status( 500 ).json( { error: "Internal Server Error" } );
+  // }
 } );
 
 
