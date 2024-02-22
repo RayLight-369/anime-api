@@ -176,14 +176,15 @@ app.post( "/search", async ( req, res ) => {
 } );
 
 
-app.get( "/num-of-viewers", ( _, res ) => {
+app.get( "/num-of-viewers", async ( _, res ) => {
   try {
 
-    console.log( cachedValue );
-    res.status( 200 ).json( { count: cachedValue } );
+    // console.log( cachedValue );
+    const count = parseInt( ( await fs.readFile( "torrent/count.txt", "utf8" ) ).toString() );
+    res.status( 200 ).json( { count } );
 
   } catch ( e ) {
-    //console.log( e );
+    console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
