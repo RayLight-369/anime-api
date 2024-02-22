@@ -179,9 +179,9 @@ app.post( "/search", async ( req, res ) => {
 app.get( "/num-of-viewers", async ( _, res ) => {
   try {
 
-    // console.log( cachedValue );
-    const count = parseInt( ( await fs.readFile( "torrent/count.txt", "utf8" ) ).toString() );
-    res.status( 200 ).json( { count } );
+    console.log( cachedValue );
+    // const count = parseInt( ( await fs.readFile( "torrent/count.txt", "utf8" ) ).toString() );
+    res.status( 200 ).json( { count: cachedValue } );
 
   } catch ( e ) {
     console.log( e );
@@ -268,7 +268,7 @@ app.post( "/torrents", async ( req, res ) => {
 
 
 
-setInterval( () => updateCachedValue( true ), 60000 );
+setInterval( () => updateCachedValue( true ), 30000 );
 
 
 
