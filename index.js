@@ -219,7 +219,19 @@ app.post( "/torrents", async ( req, res ) => {
   const category = req.body?.category || "all";
   const page = req?.body?.page || 1;
 
-  limeTorrent( query, page, category )
+  // limeTorrent( query, page, category )
+  //   .then( ( data ) => {
+  //     if ( data === null ) {
+  //       return res.json( {
+  //         error: 'Website is blocked change IP'
+  //       } );
+
+  //     } else {
+  //       return res.send( data );
+  //     }
+  //   } );
+
+  torrentGalaxy( query, page, category )
     .then( ( data ) => {
       if ( data === null ) {
         return res.json( {
@@ -229,6 +241,7 @@ app.post( "/torrents", async ( req, res ) => {
       } else {
         return res.send( data );
       }
+
     } );
 
 
