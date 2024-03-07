@@ -20,6 +20,7 @@ const gogo = new ANIME.Gogoanime();
 
 gogo.fetchAnimeInfo = fetchAnimeInfo.bind( gogo );
 gogo.fetchTopAiring = fetchTopAiring.bind( gogo );
+gogo.fetchRecentEpisodes = fetchRecentEpisodes.bind( gogo );
 
 const torrentGalaxy = require( './torrent/torrentGalaxy' );
 const limeTorrent = require( './torrent/limeTorrent' );
@@ -33,6 +34,34 @@ const supabase = createClient( supabaseUrl, supabaseKey );
 
 gogo.baseUrl = "https://anitaku.to";
 
+
+async function fetchRecentEpisodes ( page = 1, type = 1 ) {
+  try {
+    const res = await this.client.get( `${ this.baseUrl }/page-recent-release.html?page=${ page }&type=${ type }` );
+    const $ = ( 0, cheerio_1.load )( res.data );
+    const recentEpisodes = [];
+    $( 'div.last_episodes.loaddub > ul > li' ).each( ( i, el ) => {
+      var _a, _b, _c, _d;
+      recentEpisodes.push( {
+        id: ( _b = ( _a = $( el ).find( 'a' ).attr( 'href' ) ) === null || _a === void 0 ? void 0 : _a.split( '/' )[ 1 ] ) === null || _b === void 0 ? void 0 : _b.split( '-episode' )[ 0 ],
+        episodeId: ( _c = $( el ).find( 'a' ).attr( 'href' ) ) === null || _c === void 0 ? void 0 : _c.split( '/' )[ 1 ],
+        episodeNumber: parseInt( $( el ).find( 'p.episode' ).text().replace( 'Episode ', '' ) ),
+        title: $( el ).find( 'p.name > a' ).attr( 'title' ),
+        image: $( el ).find( 'div > a > img' ).attr( 'src' ),
+        url: `${ this.baseUrl }${ ( _d = $( el ).find( 'a' ).attr( 'href' ) ) === null || _d === void 0 ? void 0 : _d.trim() }`,
+      } );
+    } );
+    const hasNextPage = !$( 'div.anime_name_pagination.intro > div > ul > li' ).last().hasClass( 'selected' );
+    return {
+      currentPage: page,
+      hasNextPage: hasNextPage,
+      results: recentEpisodes,
+    };
+  }
+  catch ( err ) {
+    throw new Error( 'Something went wrong. Please try again later.' );
+  }
+};
 
 async function fetchTopAiring ( page = 1 ) {
   try {
