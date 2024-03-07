@@ -158,7 +158,7 @@ async function fetchAnimeInfo ( id ) {
   const ep_end = $( '#episode_page > li' ).last().find( 'a' ).attr( 'ep_end' );
   const movie_id = $( '#movie_id' ).attr( 'value' );
   const alias = $( '#alias_anime' ).attr( 'value' );
-  const html = await this.client.get( `${ this.ajaxUrl }/load-list-episode?ep_start=${ ep_start }&ep_end=${ ep_end }&id=${ movie_id }&default_ep=${ 0 }&alias=${ alias }` );
+  const html = await this.client.get( `${ this.baseUrl }/load-list-episode?ep_start=${ ep_start }&ep_end=${ ep_end }&id=${ movie_id }&default_ep=${ 0 }&alias=${ alias }` );
   const $$ = ( 0, cheerio_1.load )( html.data );
   animeInfo.episodes = [];
 
