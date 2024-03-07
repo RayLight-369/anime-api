@@ -17,7 +17,9 @@ var server = https.createServer( app );
 // const baseUrl = "https://anitaku.to";
 
 const gogo = new ANIME.Gogoanime();
+
 gogo.fetchAnimeInfo = fetchAnimeInfo.bind( gogo );
+gogo.fetchTopAiring = fetchTopAiring.bind( gogo );
 
 const torrentGalaxy = require( './torrent/torrentGalaxy' );
 const limeTorrent = require( './torrent/limeTorrent' );
@@ -32,6 +34,39 @@ const supabase = createClient( supabaseUrl, supabaseKey );
 gogo.baseUrl = "https://anitaku.to";
 
 
+async function fetchTopAiring ( page = 1 ) {
+  try {
+    const res = await this.client.get( `${ this.baseUrl }/page-recent-release-ongoing.html?page=${ page }` );
+    const $ = ( 0, cheerio_1.load )( res.data );
+    const topAiring = [];
+    console.log( "point 1: " );
+    $( 'div.added_series_body.popular > ul > li' ).each( ( i, el ) => {
+      var _a, _b;
+      console.log( "point 2: " );
+      var obj = {
+        id: ( _a = $( el ).find( 'a:nth-child(1)' ).attr( 'href' ) ) === null || _a === void 0 ? void 0 : _a.split( '/' )[ 2 ],
+        title: $( el ).find( 'a:nth-child(1)' ).attr( 'title' ),
+        image: ( _b = $( el ).find( 'a:nth-child(1) > div' ).attr( 'style' ) ) === null || _b === void 0 ? void 0 : _b.match( '(https?://.*.(?:png|jpg))' )[ 0 ],
+        url: `${ this.baseUrl }${ $( el ).find( 'a:nth-child(1)' ).attr( 'href' ) }`,
+        genres: $( el )
+          .find( 'p.genres > a' )
+          .map( ( i, el ) => $( el ).attr( 'title' ) )
+          .get(),
+      };
+      console.log( obj );
+      topAiring.push( obj );
+    } );
+    const hasNextPage = !$( 'div.anime_name.comedy > div > div > ul > li' ).last().hasClass( 'selected' );
+    return {
+      currentPage: page,
+      hasNextPage: hasNextPage,
+      results: topAiring,
+    };
+  }
+  catch ( err ) {
+    throw new Error( 'Something went wrong. Please try again later.' );
+  }
+};
 
 async function fetchAnimeInfo ( id ) {
   if ( !id.includes( 'gogoanime' ) )
@@ -189,9 +224,11 @@ app.get( "/", ( req, res ) => {
 app.post( "/top-airing", async ( req, res ) => {
   const page = req.body?.page || 1;
   try {
-    res.json( await topAiring( page ) );
+    const data = await topAiring( page );
+    console.log( data );
+    res.json( data );
   } catch ( e ) {
-    ////console.log( e );
+    console.log( e );
     res.status( 500 ).json( { error: "Internal server error" } );
   }
 } );
