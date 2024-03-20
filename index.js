@@ -379,7 +379,19 @@ app.post( "/torrents", async ( req, res ) => {
   const category = req.body?.category || "all";
   const page = req?.body?.page || 1;
 
-  // limeTorrent( query, page, category )
+  const limeTorrents = await limeTorrent( query, page, category );
+
+  const tgx = await torrentGalaxy( query, page, category );
+
+  if ( limeTorrents && limeTorrents.torrents.length ) {
+    res.send( limeTorrents );
+  } else if ( tgx && tgx.torrents.length ) {
+    res.send( tgx );
+  } else {
+    res.end();
+  }
+
+  // torrentGalaxy( query, page, category )
   //   .then( ( data ) => {
   //     if ( data === null ) {
   //       return res.json( {
@@ -389,20 +401,8 @@ app.post( "/torrents", async ( req, res ) => {
   //     } else {
   //       return res.send( data );
   //     }
+
   //   } );
-
-  torrentGalaxy( query, page, category )
-    .then( ( data ) => {
-      if ( data === null ) {
-        return res.json( {
-          error: 'Website is blocked change IP'
-        } );
-
-      } else {
-        return res.send( data );
-      }
-
-    } );
 
 
 
