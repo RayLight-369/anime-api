@@ -9,18 +9,18 @@ const app = express();
 TorrentSearchApi.enableProvider( "Yts" );
 const cors = require( "cors" );
 const bodyParser = require( "body-parser" );
-const { ANIME } = require( "@consumet/extensions" );
+// const { ANIME } = require( "@consumet/extensions" );
 var https = require( "http" );
 var server = https.createServer( app );
 
 // const ajaxUrl = "https://ajax.gogo-load.com/ajax";
 // const baseUrl = "https://anitaku.to";
 
-const gogo = new ANIME.Gogoanime();
+// const gogo = new ANIME.Gogoanime();
 
-gogo.fetchAnimeInfo = fetchAnimeInfo.bind( gogo );
-gogo.fetchTopAiring = fetchTopAiring.bind( gogo );
-gogo.fetchRecentEpisodes = fetchRecentEpisodes.bind( gogo );
+// gogo.fetchAnimeInfo = fetchAnimeInfo.bind( gogo );
+// gogo.fetchTopAiring = fetchTopAiring.bind( gogo );
+// gogo.fetchRecentEpisodes = fetchRecentEpisodes.bind( gogo );
 
 const torrentGalaxy = require( './torrent/torrentGalaxy' );
 const limeTorrent = require( './torrent/limeTorrent' );
@@ -32,200 +32,170 @@ let cachedValue = 0;
 const supabase = createClient( supabaseUrl, supabaseKey );
 
 
-gogo.baseUrl = "https://anitaku.to";
+// gogo.baseUrl = "https://anitaku.io";
 
-
-async function fetchRecentEpisodes ( page = 1, type = 1 ) {
-  try {
-    const res = await this.client.get( `${ this.baseUrl }/page-recent-release.html?page=${ page }&type=${ type }` );
-    const $ = ( 0, cheerio_1.load )( res.data );
-    const recentEpisodes = [];
-    $( 'div.last_episodes.loaddub > ul > li' ).each( ( i, el ) => {
-      var _a, _b, _c, _d;
-      recentEpisodes.push( {
-        id: ( _b = ( _a = $( el ).find( 'a' ).attr( 'href' ) ) === null || _a === void 0 ? void 0 : _a.split( '/' )[ 1 ] ) === null || _b === void 0 ? void 0 : _b.split( '-episode' )[ 0 ],
-        episodeId: ( _c = $( el ).find( 'a' ).attr( 'href' ) ) === null || _c === void 0 ? void 0 : _c.split( '/' )[ 1 ],
-        episodeNumber: parseInt( $( el ).find( 'p.episode' ).text().replace( 'Episode ', '' ) ),
-        title: $( el ).find( 'p.name > a' ).attr( 'title' ),
-        image: $( el ).find( 'div > a > img' ).attr( 'src' ),
-        url: `${ this.baseUrl }${ ( _d = $( el ).find( 'a' ).attr( 'href' ) ) === null || _d === void 0 ? void 0 : _d.trim() }`,
-      } );
-    } );
-    const hasNextPage = !$( 'div.anime_name_pagination.intro > div > ul > li' ).last().hasClass( 'selected' );
-    return {
-      currentPage: page,
-      hasNextPage: hasNextPage,
-      results: recentEpisodes,
-    };
-  }
-  catch ( err ) {
-    throw new Error( 'Something went wrong. Please try again later.' );
-  }
-};
-
-async function fetchTopAiring ( page = 1 ) {
-  try {
-    const res = await this.client.get( `${ this.baseUrl }/page-recent-release-ongoing.html?page=${ page }` );
-    const $ = ( 0, cheerio_1.load )( res.data );
-    const topAiring = [];
-    console.log( "point 1: " );
-    $( 'div.added_series_body.popular > ul > li' ).each( ( i, el ) => {
-      var _a, _b;
-      console.log( "point 2: " );
-      var obj = {
-        id: ( _a = $( el ).find( 'a:nth-child(1)' ).attr( 'href' ) ) === null || _a === void 0 ? void 0 : _a.split( '/' )[ 2 ],
-        title: $( el ).find( 'a:nth-child(1)' ).attr( 'title' ),
-        image: ( _b = $( el ).find( 'a:nth-child(1) > div' ).attr( 'style' ) ) === null || _b === void 0 ? void 0 : _b.match( '(https?://.*.(?:png|jpg))' )[ 0 ],
-        url: `${ this.baseUrl }${ $( el ).find( 'a:nth-child(1)' ).attr( 'href' ) }`,
-        genres: $( el )
-          .find( 'p.genres > a' )
-          .map( ( i, el ) => $( el ).attr( 'title' ) )
-          .get(),
-      };
-      console.log( obj );
-      topAiring.push( obj );
-    } );
-    const hasNextPage = !$( 'div.anime_name.comedy > div > div > ul > li' ).last().hasClass( 'selected' );
-    return {
-      currentPage: page,
-      hasNextPage: hasNextPage,
-      results: topAiring,
-    };
-  }
-  catch ( err ) {
-    throw new Error( 'Something went wrong. Please try again later.' );
-  }
-};
-
-async function fetchAnimeInfo ( id ) {
-  if ( !id.includes( 'gogoanime' ) )
-    id = `${ this.baseUrl }/category/${ id }`;
-  const animeInfo = {
-    id: '',
-    title: '',
-    url: '',
+async function s( query = 'attack on', page = 1 ) {
+  const response = await fetch( 'http://localhost:4000/api/v2/hianime/search?q=' + query + '&page=' + page );
+  const body = await response.json();
+  const results = body.data.animes.map( ( anime ) => ( {
+    id: anime.id,
+    title: anime.name,
+    image: anime.poster,
+    url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
     genres: [],
-    totalEpisodes: 0,
+  } ) );
+
+
+  const res = {
+    hasNextPage: body.data.hasNextPage,
+    currentPage: body.data.currentPage,
+    results
   };
 
-  // try {
-  const res = await this.client.get( id );
-  const $ = ( 0, cheerio_1.load )( res.data );
-  animeInfo.id = new URL( id ).pathname.split( '/' )[ 2 ];
-  animeInfo.title = $( 'section.content_left > div.main_body > div:nth-child(2) > div.anime_info_body_bg > h1' )
-    .text()
-    .trim();
-  animeInfo.url = id;
-  animeInfo.image = $( 'div.anime_info_body_bg > img' ).attr( 'src' );
-  animeInfo.releaseDate = $( 'div.anime_info_body_bg > p:nth-child(8)' )
-    .text()
-    .trim()
-    .split( 'Released: ' )[ 1 ];
-  animeInfo.description = $( 'div.anime_info_body_bg > div.description' )
-    .text()
-    .trim()
-    .replace( 'Plot Summary: ', '' );
-  animeInfo.subOrDub = animeInfo.title.toLowerCase().includes( 'dub' ) ? "dub" : "sub";
-  animeInfo.type = $( 'div.anime_info_body_bg > p:nth-child(4) > a' )
-    .text()
-    .trim()
-    .toUpperCase();
-  animeInfo.status = "Unknown";
-  switch ( $( 'div.anime_info_body_bg > p:nth-child(9) > a' ).text().trim() ) {
-    case 'Ongoing':
-      animeInfo.status = "Ongoing";
-      break;
-    case 'Completed':
-      animeInfo.status = "Completed";
-      break;
-    case 'Upcoming':
-      animeInfo.status = "Not yet aired";
-      break;
-    default:
-      animeInfo.status = "Unknown";
-      break;
+  // console.log( res );
+
+}
+
+s();
+async function search( query, page = 1 ) {
+  const response = await fetch( 'http://localhost:4000/api/v2/hianime/search?q=' + query + '&page=' + page );
+  const body = await response.json();
+  const results = body.data.animes.map( ( anime ) => ( {
+    id: anime.id,
+    title: anime.name,
+    image: anime.poster,
+    url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+    genres: [],
+  } ) );
+
+
+  const res = {
+    hasNextPage: body.data.hasNextPage,
+    currentPage: body.data.currentPage,
+    results
+  };
+
+  return res;
+}
+async function fetchRecentEpisodes( page = 1, type = 1 ) {
+  try {
+    const response = await fetch( 'http://localhost:4000/api/v2/hianime/category/recently-updated?page=' + page );
+    const body = await response.json();
+    const latestUpdated = body.data.animes.map( ( anime ) => ( {
+      id: anime.id,
+      title: anime.name,
+      image: anime.poster,
+      url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+      episodeNumber: anime.episodes.sub,
+      episodeId: 0
+    } ) );
+
+    return {
+      hasNextPage: body.data.hasNextPage,
+      currentPage: body.data.currentPage,
+      results: latestUpdated
+    };
   }
-  animeInfo.otherName = $( 'div.anime_info_body_bg > p.other-name' )
-    .text()
-    .replace( 'Other name: ', '' )
-    .replace( /;/g, ',' );
-  $( 'div.anime_info_body_bg > p:nth-child(7) > a' ).each( ( i, el ) => {
-    var _a;
-    ( _a = animeInfo.genres ) === null || _a === void 0 ? void 0 : _a.push( $( el ).attr( 'title' ).toString() );
-  } );
+  catch ( err ) {
+    throw new Error( 'Something went wrong. Please try again later.' );
+  }
+};
 
-  const ep_start = $( '#episode_page > li' ).first().find( 'a' ).attr( 'ep_start' );
-  const ep_end = $( '#episode_page > li' ).last().find( 'a' ).attr( 'ep_end' );
-  const movie_id = $( '#movie_id' ).attr( 'value' );
-  const alias = $( '#alias_anime' ).attr( 'value' );
-  const html = await this.client.get( `${ this.baseUrl }/load-list-episode?ep_start=${ ep_start }&ep_end=${ ep_end }&id=${ movie_id }&default_ep=${ 0 }&alias=${ alias }` );
-  const $$ = ( 0, cheerio_1.load )( html.data );
-  animeInfo.episodes = [];
+async function fetchTopAiring( page = 1 ) {
+  try {
+    const response = await fetch( 'http://localhost:4000/api/v2/hianime/category/top-airing?page=' + page );
+    const body = await response.json();
+    console.log( body );
+    const topAiring = body.data.animes.map( ( anime ) => ( {
+      id: anime.id,
+      title: anime.name,
+      image: anime.poster,
+      url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+      genres: [],
+    } ) );
 
-  $$( '#episode_related > li' ).each( ( i, el ) => {
-    var _a, _b, _c;
-    ( _a = animeInfo.episodes ) === null || _a === void 0 ? void 0 : _a.push( {
-      id: ( _b = $( el ).find( 'a' ).attr( 'href' ) ) === null || _b === void 0 ? void 0 : _b.split( '/' )[ 1 ],
-      number: parseFloat( $( el ).find( `div.name` ).text().replace( 'EP ', '' ) ),
-      url: `${ this.baseUrl }/${ ( _c = $( el ).find( `a` ).attr( 'href' ) ) === null || _c === void 0 ? void 0 : _c.trim() }`,
-    } );
-  } );
-  animeInfo.episodes = animeInfo.episodes.reverse();
-  animeInfo.totalEpisodes = parseInt( ep_end !== null && ep_end !== void 0 ? ep_end : '0' );
+    return {
+      hasNextPage: body.data.hasNextPage,
+      currentPage: body.data.currentPage,
+      results: topAiring
+    };
+  }
+  catch ( err ) {
+    throw new Error( 'Something went wrong. Please try again later.' );
+  }
+};
+
+async function fetchAnimeInfo( id ) {
+  const response = await fetch( 'http://localhost:4000/api/v2/hianime/anime/' + id );
+  const body = await response.json();
+  const info = body.data.anime.info;
+  const moreInfo = body.data.anime.moreInfo;
+
+  const animeInfo = {
+    id: id,
+    title: info.name,
+    url: id,
+    genres: moreInfo.genres,
+    totalEpisodes: info.stats.episodes.sub,
+    releaseDate: moreInfo.aired,
+    description: info.description,
+    image: info.poster,
+    status: moreInfo.status,
+    type: info.stats.type,
+    otherNames: `${ moreInfo.japanese } ${ moreInfo.synonyms }`.replace( / /g, ', ' )
+  };
+  // console.log( animeInfo );
   return animeInfo;
-  // }
-  // catch ( err ) {
-  //   throw new Error( `failed to fetch anime info: ${ err }` );
-  // }
+
 };
 
 
 
-async function updateCachedValue ( update ) {
-  try {
-    const Data = supabase
-      .from( 'sp' );
+// async function updateCachedValue( update ) {
+//   try {
+//     const Data = supabase
+//       .from( 'sp' );
 
-    if ( update && cachedValue > 10 ) {
-      await Data
-        .update( { viewers: cachedValue } )
-        .match( { id: 1 } );
-    }
+//     if ( update && cachedValue > 10 ) {
+//       await Data
+//         .update( { viewers: cachedValue } )
+//         .match( { id: 1 } );
+//     }
 
-    const { data, error } = await Data.select();
-    // console.log( data );
+//     const { data, error } = await Data.select();
+//     // console.log( data );
 
-    if ( error ) {
-      throw error;
-    }
+//     if ( error ) {
+//       throw error;
+//     }
 
-    if ( data.length === 0 ) {
-      throw new Error( 'No rows found' );
-    }
+//     if ( data.length === 0 ) {
+//       throw new Error( 'No rows found' );
+//     }
 
-    if ( !update ) cachedValue = parseInt( data[ 0 ].viewers );
-  } catch ( error ) {
-    console.error( 'Error fetching value from Supabase:', error );
-  }
-}
+//     if ( !update ) cachedValue = parseInt( data[ 0 ].viewers );
+//   } catch ( error ) {
+//     console.error( 'Error fetching value from Supabase:', error );
+//   }
+// }
 
-updateCachedValue( false );
+// updateCachedValue( false );
 
 const searchAnime = async ( query, page = 1 ) => {
-  let results = await gogo.search( query, page );
+  let results = await search( query, page );
   return ( results.results.length ? results : null );
 };
 
 const topAiring = async ( page = 1 ) => {
-  return ( await gogo.fetchTopAiring( page ) );
+  return ( await fetchTopAiring( page ) );
 };
 
 const recentEpisodes = async ( page = 1, type = 1 ) => {
-  return ( await gogo.fetchRecentEpisodes( page, type ) );
+  return ( await fetchRecentEpisodes( page, type ) );
 };
 
 const animeInfo = async ( id ) => {
-  return ( await gogo.fetchAnimeInfo( id ) );
+  return ( await fetchAnimeInfo( id ) );
 };
 
 const fetchServers = async ( id ) => {
@@ -254,7 +224,7 @@ app.post( "/top-airing", async ( req, res ) => {
   const page = req.body?.page || 1;
   try {
     const data = await topAiring( page );
-    console.log( data );
+    // console.log( data );
     res.json( data );
   } catch ( e ) {
     console.log( e );
@@ -294,24 +264,24 @@ app.post( "/anime-info", async ( req, res ) => {
 } );
 
 
-app.post( "/episode-servers", async ( req, res ) => {
-  const id = req.body.epId;
+// app.post( "/episode-servers", async ( req, res ) => {
+//   const id = req.body.epId;
 
-  try {
-    const servers = await fetchServers( id );
+//   try {
+//     const servers = await fetchServers( id );
 
-    if ( servers ) {
-      ////console.log( servers );
-      res.json( servers ); // sending the search results back to the client
-    } else {
-      res.status( 404 ).json( { error: "No results found" } );
-    }
+//     if ( servers ) {
+//       ////console.log( servers );
+//       res.json( servers ); // sending the search results back to the client
+//     } else {
+//       res.status( 404 ).json( { error: "No results found" } );
+//     }
 
-  } catch ( error ) {
-    console.error( "Error searching anime:", error );
-    res.status( 500 ).json( { error: "Internal server error" } );
-  }
-} );
+//   } catch ( error ) {
+//     console.error( "Error searching anime:", error );
+//     res.status( 500 ).json( { error: "Internal server error" } );
+//   }
+// } );
 
 
 app.post( "/search", async ( req, res ) => {
@@ -335,39 +305,39 @@ app.post( "/search", async ( req, res ) => {
 } );
 
 
-app.get( "/num-of-viewers", async ( _, res ) => {
-  try {
+// app.get( `/num-of-viewers`, async ( _, res ) => {
+//   try {
 
-    console.log( cachedValue );
-    // const count = parseInt( ( await fs.readFile( "torrent/count.txt", "utf8" ) ).toString() );
-    res.status( 200 ).json( { count: cachedValue } );
+//     console.log( cachedValue );
+//     // const count = parseInt( ( await fs.readFile( "torrent/count.txt", "utf8" ) ).toString() );
+//     res.status( 200 ).json( { count: cachedValue } );
 
-  } catch ( e ) {
-    console.log( e );
-    res.status( 500 ).json( { error: "Internal server error" } );
-  }
-} );
+//   } catch ( e ) {
+//     console.log( e );
+//     res.status( 500 ).json( { error: "Internal server error" } );
+//   }
+// } );
 
 
-app.post( "/num-of-viewers", ( req, res ) => {
+// app.post( "/num-of-viewers", ( req, res ) => {
 
-  const visited = req.body.visited;
+//   const visited = req.body.visited;
 
-  try {
+//   try {
 
-    if ( !visited || visited == "null" ) {
-      ++cachedValue;
-      res.cookie( "deviceVisited", true );
-      // console.log( cachedValue );
-    }
+//     if ( !visited || visited == "null" ) {
+//       ++cachedValue;
+//       res.cookie( "deviceVisited", true );
+//       // console.log( cachedValue );
+//     }
 
-    res.status( 200 ).json( { count: cachedValue } );
+//     res.status( 200 ).json( { count: cachedValue } );
 
-  } catch ( e ) {
-    //console.log( e );
-    res.status( 500 ).json( { error: "Internal server error" } );
-  }
-} );
+//   } catch ( e ) {
+//     //console.log( e );
+//     res.status( 500 ).json( { error: "Internal server error" } );
+//   }
+// } );
 
 
 app.post( "/torrents", async ( req, res ) => {
@@ -427,7 +397,7 @@ app.post( "/torrents", async ( req, res ) => {
 
 
 
-setInterval( () => updateCachedValue( true ), 30000 );
+// setInterval( () => updateCachedValue( true ), 30000 );
 
 
 
