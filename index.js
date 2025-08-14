@@ -87,7 +87,7 @@ async function fetchRecentEpisodes( page = 1, type = 1 ) {
       image: anime.poster,
       url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
       episodeNumber: anime.episodes.sub,
-      episodeId: 0
+      episodeId: anime.episodes.sub
     } ) );
 
     return {
