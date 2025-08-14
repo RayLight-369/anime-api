@@ -142,7 +142,8 @@ async function fetchAnimeInfo( id ) {
     image: info.poster,
     status: moreInfo.status,
     type: info.stats.type,
-    otherNames: `${ moreInfo.japanese } ${ moreInfo.synonyms }`.replace( / /g, ', ' )
+    otherNames: `${ moreInfo.japanese } ${ moreInfo.synonyms }`.replace( / /g, ', ' ),
+    episodes: []
   };
   // console.log( animeInfo );
   return animeInfo;
