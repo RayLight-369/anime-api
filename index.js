@@ -35,13 +35,13 @@ const supabase = createClient( supabaseUrl, supabaseKey );
 // gogo.baseUrl = "https://anitaku.io";
 
 async function s( query = 'attack on', page = 1 ) {
-  const response = await fetch( 'http://localhost:4000/api/v2/hianime/search?q=' + query + '&page=' + page );
+  const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/search?q=' + query + '&page=' + page );
   const body = await response.json();
   const results = body.data.animes.map( ( anime ) => ( {
     id: anime.id,
     title: anime.name,
     image: anime.poster,
-    url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+    url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
     genres: [],
   } ) );
 
@@ -58,13 +58,13 @@ async function s( query = 'attack on', page = 1 ) {
 
 s();
 async function search( query, page = 1 ) {
-  const response = await fetch( 'http://localhost:4000/api/v2/hianime/search?q=' + query + '&page=' + page );
+  const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/search?q=' + query + '&page=' + page );
   const body = await response.json();
   const results = body.data.animes.map( ( anime ) => ( {
     id: anime.id,
     title: anime.name,
     image: anime.poster,
-    url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+    url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
     genres: [],
   } ) );
 
@@ -79,13 +79,13 @@ async function search( query, page = 1 ) {
 }
 async function fetchRecentEpisodes( page = 1, type = 1 ) {
   try {
-    const response = await fetch( 'http://localhost:4000/api/v2/hianime/category/recently-updated?page=' + page );
+    const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/category/recently-updated?page=' + page );
     const body = await response.json();
     const latestUpdated = body.data.animes.map( ( anime ) => ( {
       id: anime.id,
       title: anime.name,
       image: anime.poster,
-      url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+      url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
       episodeNumber: anime.episodes.sub,
       episodeId: 0
     } ) );
@@ -103,14 +103,14 @@ async function fetchRecentEpisodes( page = 1, type = 1 ) {
 
 async function fetchTopAiring( page = 1 ) {
   try {
-    const response = await fetch( 'http://localhost:4000/api/v2/hianime/category/top-airing?page=' + page );
+    const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/category/top-airing?page=' + page );
     const body = await response.json();
     console.log( body );
     const topAiring = body.data.animes.map( ( anime ) => ( {
       id: anime.id,
       title: anime.name,
       image: anime.poster,
-      url: `http://localhost:4000/api/v2/hianime/anime/${ anime.id }`,
+      url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
       genres: [],
     } ) );
 
@@ -126,7 +126,7 @@ async function fetchTopAiring( page = 1 ) {
 };
 
 async function fetchAnimeInfo( id ) {
-  const response = await fetch( 'http://localhost:4000/api/v2/hianime/anime/' + id );
+  const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/anime/' + id );
   const body = await response.json();
   const info = body.data.anime.info;
   const moreInfo = body.data.anime.moreInfo;
