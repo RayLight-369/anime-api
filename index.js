@@ -224,7 +224,7 @@ app.post( "/top-airing", async ( req, res ) => {
   const page = req.body?.page || 1;
   try {
     const data = await topAiring( page );
-    // console.log( data );
+    console.log( data );
     res.json( data );
   } catch ( e ) {
     console.log( e );
