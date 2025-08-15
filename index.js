@@ -57,6 +57,12 @@ async function s( query = 'attack on', page = 1 ) {
 }
 
 s();
+
+
+async function fetchAnimeEpisodeServers() {
+
+}
+
 async function search( query, page = 1 ) {
   const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/search?q=' + query + '&page=' + page );
   const body = await response.json();
@@ -81,14 +87,22 @@ async function fetchRecentEpisodes( page = 1, type = 1 ) {
   try {
     const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/category/recently-updated?page=' + page );
     const body = await response.json();
-    const latestUpdated = body.data.animes.map( ( anime ) => ( {
-      id: anime.id,
-      title: anime.name,
-      image: anime.poster,
-      url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
-      episodeNumber: anime.episodes.sub,
-      episodeId: anime.episodes.sub
-    } ) );
+
+    const latestUpdated = body.data.animes.map( async ( anime ) => {
+
+      const response2 = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/anime/' + anime.id + '/episodes' );
+      const body2 = await response2.json();
+
+
+      return ( {
+        id: anime.id,
+        title: anime.name,
+        image: anime.poster,
+        url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
+        episodeNumber: anime.episodes.sub,
+        episodeId: body2.data.episodes[ body2.data.episodes.length - 1 ].episodeId
+      } );
+    } );
 
     return {
       hasNextPage: body.data.hasNextPage,
