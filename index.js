@@ -153,7 +153,7 @@ async function fetchAnimeInfo( id ) {
   const body2 = await response2.json();
   const episodes = await body2.data.episodes.map( ( ep ) => ( {
     id: ep.episodeId,
-    number: ep.episodeNumber
+    number: ep.number
   } ) );
 
   const info = body.data.anime.info;
