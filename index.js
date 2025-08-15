@@ -146,6 +146,16 @@ async function fetchTopAiring( page = 1 ) {
 async function fetchAnimeInfo( id ) {
   const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/anime/' + id );
   const body = await response.json();
+
+  const response2 = await fetch(
+    `https://anim-api.vercel.app/api/v2/hianime/anime/${ id }/episodes`
+  );
+  const body2 = await response2.json();
+  const episodes = await body2.data.episodes.map( ( ep ) => ( {
+    id: ep.episodeId,
+    number: ep.episodeNumber
+  } ) );
+
   const info = body.data.anime.info;
   const moreInfo = body.data.anime.moreInfo;
 
@@ -161,7 +171,7 @@ async function fetchAnimeInfo( id ) {
     status: moreInfo.status,
     type: info.stats.type,
     otherName: `${ moreInfo.japanese }, ${ moreInfo.synonyms }`,
-    episodes: []
+    episodes
   };
   // console.log( animeInfo );
   return animeInfo;
