@@ -85,35 +85,39 @@ async function search( query, page = 1 ) {
 }
 async function fetchRecentEpisodes( page = 1, type = 1 ) {
   try {
-    const response = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/category/recently-updated?page=' + page );
+    const response = await fetch(
+      `https://anim-api.vercel.app/api/v2/hianime/category/recently-updated?page=${ page }`
+    );
     const body = await response.json();
 
-    const latestUpdated = body.data.animes.map( async ( anime ) => {
+    const latestUpdated = await Promise.all(
+      body.data.animes.map( async ( anime ) => {
+        const response2 = await fetch(
+          `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }/episodes`
+        );
+        const body2 = await response2.json();
 
-      const response2 = await fetch( 'https://anim-api.vercel.app/api/v2/hianime/anime/' + anime.id + '/episodes' );
-      const body2 = await response2.json();
-
-
-      return ( {
-        id: anime.id,
-        title: anime.name,
-        image: anime.poster,
-        url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
-        episodeNumber: anime.episodes.sub,
-        episodeId: body2.data.episodes[ body2.data.episodes.length - 1 ].episodeId
-      } );
-    } );
+        return {
+          id: anime.id,
+          title: anime.name,
+          image: anime.poster,
+          url: `https://anim-api.vercel.app/api/v2/hianime/anime/${ anime.id }`,
+          episodeNumber: anime.episodes.sub,
+          episodeId: body2.data.episodes[ body2.data.episodes.length - 1 ].episodeId
+        };
+      } )
+    );
 
     return {
       hasNextPage: body.data.hasNextPage,
       currentPage: body.data.currentPage,
       results: latestUpdated
     };
-  }
-  catch ( err ) {
+  } catch ( err ) {
     throw new Error( 'Something went wrong. Please try again later.' );
   }
-};
+}
+
 
 async function fetchTopAiring( page = 1 ) {
   try {
